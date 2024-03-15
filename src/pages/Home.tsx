@@ -88,53 +88,85 @@ const Count = styled.div`
 `;
 
 export default function Home() {
+  const [timer, setTimer] = useState({ minutes: 25, seconds: 0 });
   const [isStarted, setIsStarted] = useState(false);
   const [isRested, setIsRested] = useState(false);
-  const [minutes, setMinutes] = useState(25);
-  const [second, setSecond] = useState(0);
   const [round, setRound] = useState(0);
   const [goal, setGoal] = useState(0);
 
-  const onStart = () => {
+  // 타이머 시작
+  /*
+    1. seconds > 0 → 1초씩 감소.
+    2. minutes === 0 && seconds === 0 → 휴식 시작, round 증가.
+     2-1. round < 4 → 짧은 휴식 5분.
+     2-2. round === 4 → 긴 휴식 30분, round 초기화, goal 증가.
+    3. goal > 12 → goal 초기화
+    4. 모든 조건에 해당되지 않는다면 1분을 빼고 59초로 세팅.
+  */
+  useEffect(() => {
+    let interval: number;
+    if (isStarted && !isRested) {
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+          if (prev.minutes === 0 && prev.seconds === 0) {
+            setIsRested(true);
+            setIsStarted(false);
+            setRound(round + 1);
+            if (round < 4) return { ...prev, minutes: 5 };
+            if (round === 4) {
+              setGoal(goal + 1);
+              setRound(0);
+              return { ...prev, minutes: 30 };
+            }
+            if (goal > 12) setGoal(0);
+          }
+          return { ...prev, seconds: 59, minutes: prev.minutes - 1 };
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer, round, goal, isStarted, isRested]);
+
+  // 휴식
+  /*
+    1. seconds > 0 → 1초씩 감소.
+    2. minutes === 0 && seconds === 0 → 휴식 종료, 타이머를 25분으로 세팅 (집중 시간)
+    3. 모든 조건에 해당되지 않는다면 1분을 빼고 59초로 세팅.
+  */
+  useEffect(() => {
+    let interval: number;
+    if (isRested && isStarted) {
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+          if (prev.minutes === 0 && prev.seconds === 0) {
+            setIsRested(false);
+            setIsStarted(false);
+            return { ...prev, minutes: 25 };
+          }
+          return { ...prev, seconds: 59, minutes: prev.minutes - 1 };
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer, isStarted, isRested]);
+
+  // 클린업 함수.
+  const toggleTimer = () => {
     setIsStarted((prev) => !prev);
   };
-  useEffect(() => {
-    if (minutes < 0) {
-      setRound((prev) => prev + 1);
-      setIsRested(true);
-    }
 
-    if (second < 0) {
-      setMinutes((prev) => prev - 1);
-      setSecond(59);
-    }
-
-    if (round === 4) {
-      setRound(0);
-      setGoal((prev) => prev + 1);
-    }
-
-    if (isStarted) {
-      const timer = setInterval(() => {
-        setSecond((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-
-    if (isRested) {
-      round === 4 ? setMinutes(30) : setMinutes(5);
-    }
-  });
   return (
     <Container>
       <Title>Pomodoro</Title>
       <TimerContainer>
-        <Time>{String(minutes).padStart(2, "0")}</Time>
+        <Time>{String(timer.minutes).padStart(2, "0")}</Time>
         <Colon>:</Colon>
-        <Time>{String(second).padStart(2, "0")}</Time>
+        <Time>{String(timer.seconds).padStart(2, "0")}</Time>
       </TimerContainer>
       {isStarted ? (
-        <Button onClick={onStart}>
+        <Button onClick={toggleTimer}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -149,7 +181,7 @@ export default function Home() {
           </svg>
         </Button>
       ) : (
-        <Button onClick={onStart}>
+        <Button onClick={toggleTimer}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
