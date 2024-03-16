@@ -1,7 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import Card from "../components/Card";
+import { useRecoilState } from "recoil";
+import {
+  GoalStateAtom,
+  RoundStateAtom,
+  TimerStateAtom,
+  isRestedStateAtom,
+  isStartStateAtom,
+} from "../atoms";
 
 const Container = styled.div<{ $isRested?: boolean }>`
   display: flex;
@@ -87,11 +95,11 @@ const Count = styled.div`
   }
 `;
 export default function Home() {
-  const [timer, setTimer] = useState({ minutes: 25, seconds: 0 });
-  const [isStarted, setIsStarted] = useState(false);
-  const [isRested, setIsRested] = useState(false);
-  const [round, setRound] = useState(0);
-  const [goal, setGoal] = useState(0);
+  const [timer, setTimer] = useRecoilState(TimerStateAtom);
+  const [isStarted, setIsStarted] = useRecoilState(isStartStateAtom);
+  const [isRested, setIsRested] = useRecoilState(isRestedStateAtom);
+  const [round, setRound] = useRecoilState(RoundStateAtom);
+  const [goal, setGoal] = useRecoilState(GoalStateAtom);
 
   // 타이머 시작
   /*
@@ -188,7 +196,7 @@ export default function Home() {
   return (
     <Container $isRested={isRested}>
       <Title>Pomodoro</Title>
-      <Card minutes={timer.minutes} seconds={timer.seconds} isRested={isRested} />
+      <Card />
       <ButtonGroup>
         <SubButton onClick={resetButton} whileHover={{ scale: 1.2 }}>
           <svg

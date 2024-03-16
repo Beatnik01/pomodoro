@@ -1,6 +1,8 @@
 import { motion, useAnimate } from "framer-motion";
 import { useEffect } from "react";
+import { useRecoilValue } from "recoil";
 import styled from "styled-components";
+import { TimerStateAtom, isRestedStateAtom } from "../atoms";
 
 const TimerContainer = styled.div<{ $isRested?: boolean }>`
   display: flex;
@@ -29,15 +31,9 @@ const Colon = styled.div`
   color: white;
 `;
 
-export default function Card({
-  minutes,
-  seconds,
-  isRested,
-}: {
-  minutes: number;
-  seconds: number;
-  isRested: boolean;
-}) {
+export default function Card() {
+  const timer = useRecoilValue(TimerStateAtom);
+  const isRested = useRecoilValue(isRestedStateAtom);
   const [minScope, minAnimate] = useAnimate();
   const [secScope, secAnimate] = useAnimate();
 
@@ -47,7 +43,7 @@ export default function Card({
       { scale: [0.6, 1], opacity: [0, 1] },
       { type: "spring", bounce: 0.2 }
     );
-  }, [minutes]);
+  }, [timer.minutes]);
 
   useEffect(() => {
     secAnimate(
@@ -55,14 +51,14 @@ export default function Card({
       { scale: [0.6, 1], opacity: [0, 1] },
       { type: "spring", bounce: 0.2 }
     );
-  }, [seconds]);
+  }, [timer.seconds]);
   // useEffect 하나에서 animate를 처리하면 seconds가 갱신될때 minutes의 animte도 실행됨.
 
   return (
     <TimerContainer $isRested={isRested}>
-      <Time ref={minScope}>{String(minutes).padStart(2, "0")}</Time>
+      <Time ref={minScope}>{String(timer.minutes).padStart(2, "0")}</Time>
       <Colon>:</Colon>
-      <Time ref={secScope}>{String(seconds).padStart(2, "0")}</Time>
+      <Time ref={secScope}>{String(timer.seconds).padStart(2, "0")}</Time>
     </TimerContainer>
   );
 }
