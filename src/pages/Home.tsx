@@ -8,12 +8,13 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  max-width: 30rem;
+  height: 100vh;
   margin: 0 auto;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  background-color: #e74c3d;
 `;
 
 const Title = styled.h1`
@@ -44,6 +45,7 @@ const Button = styled(motion.button)`
   margin: 10rem 0;
   background-color: rgba(0, 0, 0, 0.2);
   color: white;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   cursor: pointer;
   svg {
     width: 7rem;
