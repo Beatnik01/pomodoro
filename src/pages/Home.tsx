@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import styled from "styled-components";
+import Card from "../components/Card";
 
 const Container = styled.div`
   display: flex;
@@ -29,26 +31,12 @@ const TimerContainer = styled.div`
   gap: 0.5rem;
 `;
 
-const Time = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: white;
-  border-radius: 10px;
-  font-size: 8rem;
-  font-weight: 900;
-  width: 11rem;
-  line-height: 15rem;
-  padding: 0.5rem 1rem;
-  color: #e74c3d;
-`;
-
 const Colon = styled.div`
   font-size: 10rem;
   color: white;
 `;
 
-const Button = styled.button`
+const Button = styled(motion.button)`
   width: 10rem;
   height: 10rem;
   border-radius: 50%;
@@ -86,7 +74,6 @@ const Count = styled.div`
     color: white;
   }
 `;
-
 export default function Home() {
   const [timer, setTimer] = useState({ minutes: 25, seconds: 0 });
   const [isStarted, setIsStarted] = useState(false);
@@ -112,7 +99,7 @@ export default function Home() {
           if (prev.minutes === 0 && prev.seconds === 0) {
             setIsRested(true);
             setIsStarted(false);
-            setRound(round + 1);
+            setRound(round + 1); // ** (prev) => prev+1로 하면 round, goal 모두 2씩 증가됨, 이유는 모르겠음. **
             if (round < 4) return { ...prev, minutes: 5 };
             if (round === 4) {
               setGoal(goal + 1);
@@ -161,12 +148,12 @@ export default function Home() {
     <Container>
       <Title>Pomodoro</Title>
       <TimerContainer>
-        <Time>{String(timer.minutes).padStart(2, "0")}</Time>
+        <Card time={String(timer.minutes).padStart(2, "0")} />
         <Colon>:</Colon>
-        <Time>{String(timer.seconds).padStart(2, "0")}</Time>
+        <Card time={String(timer.seconds).padStart(2, "0")} />
       </TimerContainer>
       {isStarted ? (
-        <Button onClick={toggleTimer}>
+        <Button onClick={toggleTimer} whileHover={{ scale: 1.2 }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -181,7 +168,7 @@ export default function Home() {
           </svg>
         </Button>
       ) : (
-        <Button onClick={toggleTimer}>
+        <Button onClick={toggleTimer} whileHover={{ scale: 1.2 }}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
