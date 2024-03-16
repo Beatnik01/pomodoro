@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import styled from "styled-components";
 import Card from "../components/Card";
 
-const Container = styled.div`
+const Container = styled.div<{ $isRested?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -14,7 +14,7 @@ const Container = styled.div`
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  background-color: #e74c3d;
+  background-color: ${(props) => (props.$isRested ? "#2ecc71" : "#e74c3d")};
 `;
 
 const Title = styled.h1`
@@ -23,18 +23,6 @@ const Title = styled.h1`
   font-weight: 900;
   font-size: 5rem;
   margin: 10rem 0;
-`;
-
-const TimerContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const Colon = styled.div`
-  font-size: 10rem;
-  color: white;
 `;
 
 const Button = styled(motion.button)`
@@ -147,13 +135,9 @@ export default function Home() {
   };
 
   return (
-    <Container>
+    <Container $isRested={isRested}>
       <Title>Pomodoro</Title>
-      <TimerContainer>
-        <Card time={String(timer.minutes).padStart(2, "0")} />
-        <Colon>:</Colon>
-        <Card time={String(timer.seconds).padStart(2, "0")} />
-      </TimerContainer>
+      <Card minutes={timer.minutes} seconds={timer.seconds} isRested={isRested} />
       {isStarted ? (
         <Button onClick={toggleTimer} whileHover={{ scale: 1.2 }}>
           <svg
