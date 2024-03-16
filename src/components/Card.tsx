@@ -38,17 +38,31 @@ export default function Card({
   seconds: number;
   isRested: boolean;
 }) {
-  const [scope, animate] = useAnimate();
+  const [minScope, minAnimate] = useAnimate();
+  const [secScope, secAnimate] = useAnimate();
 
   useEffect(() => {
-    animate(scope.current, { scale: [0.6, 1], opacity: [0, 1] }, { type: "spring", bounce: 0.2 });
+    minAnimate(
+      minScope.current,
+      { scale: [0.6, 1], opacity: [0, 1] },
+      { type: "spring", bounce: 0.2 }
+    );
   }, [minutes]);
+
+  useEffect(() => {
+    secAnimate(
+      secScope.current,
+      { scale: [0.6, 1], opacity: [0, 1] },
+      { type: "spring", bounce: 0.2 }
+    );
+  }, [seconds]);
+  // useEffect 하나에서 animate를 처리하면 seconds가 갱신될때 minutes의 animte도 실행됨.
 
   return (
     <TimerContainer $isRested={isRested}>
-      <Time ref={scope}>{String(minutes).padStart(2, "0")}</Time>
+      <Time ref={minScope}>{String(minutes).padStart(2, "0")}</Time>
       <Colon>:</Colon>
-      <Time ref={scope}>{String(seconds).padStart(2, "0")}</Time>
+      <Time ref={secScope}>{String(seconds).padStart(2, "0")}</Time>
     </TimerContainer>
   );
 }
