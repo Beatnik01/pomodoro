@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { motion, useAnimate, useAnimationControls } from "framer-motion";
+import { motion, useAnimationControls } from "framer-motion";
 import styled from "styled-components";
 import Timer from "../components/Timer";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import {
   GoalStateAtom,
   RoundStateAtom,
@@ -58,8 +58,6 @@ export default function Home() {
   const [isSkiped, setIsSkiped] = useRecoilState(isSkipedStateAtom);
   const [goal, setGoal] = useRecoilState(GoalStateAtom);
   const controls = useAnimationControls();
-
-  console.log(isSkiped);
 
   // 타이머 시작
   /*

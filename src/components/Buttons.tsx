@@ -22,7 +22,7 @@ const Button = styled(motion.button)`
   height: 10rem;
   border-radius: 50%;
   border: none;
-  margin: 10rem 0;
+  margin: 5rem 0;
   background-color: rgba(0, 0, 0, 0.2);
   color: white;
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
