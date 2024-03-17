@@ -5,6 +5,7 @@ import {
   GoalStateAtom,
   RoundStateAtom,
   TimerStateAtom,
+  isResetedStateAtom,
   isRestedStateAtom,
   isSkipedStateAtom,
   isStartStateAtom,
@@ -50,6 +51,7 @@ const SubButton = styled(motion.button)`
 export default function Buttons() {
   const setTimer = useSetRecoilState(TimerStateAtom);
   const setIsSkiped = useSetRecoilState(isSkipedStateAtom);
+  const setIsReseted = useSetRecoilState(isResetedStateAtom);
   const [isStarted, setIsStarted] = useRecoilState(isStartStateAtom);
   const [isRested, setIsRested] = useRecoilState(isRestedStateAtom);
   const [round, setRound] = useRecoilState(RoundStateAtom);
@@ -60,6 +62,7 @@ export default function Buttons() {
   };
 
   const resetButton = () => {
+    setIsReseted(true);
     setTimer({ seconds: 0, minutes: 25 });
     setIsStarted(false);
     setIsRested(false);
@@ -67,11 +70,6 @@ export default function Buttons() {
     setGoal(0);
   };
 
-  /* 
-       초기엔 기존 로직을 활용하기 위해 setIsStarted(ture) 후
-       timer를 0초로 초기화 해서 skip하는 방식을 사용했지만 약간의 딜레이가 거슬려서 방식을 바꿨음. 
-       이것도 함수를 재사용하면 코드를 줄일 수 있을것 같은데 감이 안잡힘.
-    */
   const skipButton = () => {
     setIsSkiped(true);
     if (!isRested) {

@@ -7,6 +7,7 @@ import {
   GoalStateAtom,
   RoundStateAtom,
   TimerStateAtom,
+  isResetedStateAtom,
   isRestedStateAtom,
   isSkipedStateAtom,
   isStartStateAtom,
@@ -56,85 +57,78 @@ export default function Home() {
   const [isRested, setIsRested] = useRecoilState(isRestedStateAtom);
   const [round, setRound] = useRecoilState(RoundStateAtom);
   const [isSkiped, setIsSkiped] = useRecoilState(isSkipedStateAtom);
+  const [isReseted, setIsReseted] = useRecoilState(isResetedStateAtom);
   const [goal, setGoal] = useRecoilState(GoalStateAtom);
-  const controls = useAnimationControls();
+  const controls = useAnimationControls(); // 애니메이션을 제어하기 위한 컨트롤러
 
-  // 타이머 시작
-  /*
-    1. seconds > 0 → 1초씩 감소.
-    2. minutes === 0 && seconds === 0 → 휴식 시작, round 증가.
-     2-1. round < 4 → 짧은 휴식 5분.
-     2-2. round === 4 → 긴 휴식 30분, round 초기화, goal 증가.
-    3. goal > 12 → goal 초기화
-    4. 모든 조건에 해당되지 않는다면 1분을 빼고 59초로 세팅.
-  */
   useEffect(() => {
     let interval: number;
+    // 집중 상태에서의 타이머 로직
     if (isStarted && !isRested) {
       interval = setInterval(() => {
         setTimer((prev) => {
           if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
           if (prev.minutes === 0 && prev.seconds === 0) {
-            setIsRested(true);
+            setIsRested(true); // 휴식 상태로 변경
             setIsStarted(false);
-            setRound(round + 1); // ** (prev) => prev+1로 하면 round, goal 모두 2씩 증가됨, 이유는 모르겠음. **
+            setRound(round + 1); // 라운드 증가
             if (round < 4) return { ...prev, minutes: 5 };
             if (round === 4) {
-              setGoal(goal + 1);
-              setRound(0);
+              setGoal(goal + 1); // 목표 달성 횟수 증가
+              setRound(0); // 라운드 초기화
               return { ...prev, minutes: 30 };
             }
-            if (goal > 12) setGoal(0);
+            if (goal > 12) setGoal(0); // 목표 달성 횟수 초기화
           }
           return { ...prev, seconds: 59, minutes: prev.minutes - 1 };
         });
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); // 컴포넌트 언마운트 시 타이머 정리
   }, [timer, round, goal, isStarted, isRested]);
 
-  // 휴식
-  /*
-    1. seconds > 0 → 1초씩 감소.
-    2. minutes === 0 && seconds === 0 → 휴식 종료, 타이머를 25분으로 세팅 (집중 시간)
-    3. 모든 조건에 해당되지 않는다면 1분을 빼고 59초로 세팅.
-  */
   useEffect(() => {
     let interval: number;
+    // 휴식 상태에서의 타이머 로직
     if (isRested && isStarted) {
       interval = setInterval(() => {
         setTimer((prev) => {
           if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
           if (prev.minutes === 0 && prev.seconds === 0) {
-            setIsRested(false);
+            setIsRested(false); // 집중 상태로 변경
             setIsStarted(false);
-            return { ...prev, minutes: 25 };
+            return { ...prev, minutes: 25 }; // 집중 시간으로 설정
           }
           return { ...prev, seconds: 59, minutes: prev.minutes - 1 };
         });
       }, 1000);
     }
-    // 클린업 함수.
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); // 컴포넌트 언마운트 시 타이머 정리
   }, [timer, isStarted, isRested]);
 
   useEffect(() => {
+    // 애니메이션 제어 및 초기화 처리
     if (isStarted && !isRested) controls.start({ y: "100%" }, { duration: 1500 });
     if (isStarted && isRested) {
       if (round < 4) controls.start({ y: "100%" }, { duration: 300 });
       if (round === 4) controls.start({ y: "100%" }, { duration: 1800 });
     }
+    if (isReseted) {
+      controls.set({ y: 0 }); // 애니메이션 초기 위치로 설정
+      setIsReseted(false); // 초기화 상태 해제
+    }
     if (isSkiped) {
-      controls.set({ y: 0 });
-      setIsSkiped(false);
+      controls.set({ y: 0 }); // 애니메이션 초기 위치로 설정
+      setIsSkiped(false); // 스킵 상태 해제
     }
     if (!isStarted) {
-      controls.stop();
+      controls.stop(); // 애니메이션 정지
     }
-  }, [isStarted, isRested, isSkiped, round]);
+  }, [isStarted, isRested, isSkiped, round, controls, setIsReseted]);
+
   return (
     <Background $isRested={isRested}>
-      <BackgroundAnimation $isRested={isRested} animate={controls} />
+      <BackgroundAnimation $isRested={isRested} animate={controls} /> {/* 애니메이션 요소 */}
       <Container>
         <Title>Pomodoro</Title>
         <Timer />

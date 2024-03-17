@@ -20,6 +20,11 @@ export const isSkipedStateAtom = atom({
   default: false,
 });
 
+export const isResetedStateAtom = atom({
+  key: "isResetedState",
+  default: false,
+});
+
 export const RoundStateAtom = atom({
   key: "roundState",
   default: 0,
