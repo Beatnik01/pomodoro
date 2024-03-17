@@ -12,7 +12,7 @@ const TimerContainer = styled.div<{ $isRested?: boolean }>`
   color: ${(props) => (props.$isRested ? "#2ecc71" : "#e74c3d")};
 `;
 
-const Time = styled(motion.div)`
+const Card = styled(motion.div)`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,7 +31,7 @@ const Colon = styled.div`
   color: white;
 `;
 
-export default function Card() {
+export default function Timer() {
   const timer = useRecoilValue(TimerStateAtom);
   const isRested = useRecoilValue(isRestedStateAtom);
   const [minScope, minAnimate] = useAnimate();
@@ -56,9 +56,9 @@ export default function Card() {
 
   return (
     <TimerContainer $isRested={isRested}>
-      <Time ref={minScope}>{String(timer.minutes).padStart(2, "0")}</Time>
+      <Card ref={minScope}>{String(timer.minutes).padStart(2, "0")}</Card>
       <Colon>:</Colon>
-      <Time ref={secScope}>{String(timer.seconds).padStart(2, "0")}</Time>
+      <Card ref={secScope}>{String(timer.seconds).padStart(2, "0")}</Card>
     </TimerContainer>
   );
 }
