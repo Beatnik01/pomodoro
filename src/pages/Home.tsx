@@ -1,13 +1,14 @@
 import { useEffect } from "react";
-import { motion, useAnimate } from "framer-motion";
+import { motion, useAnimate, useAnimationControls } from "framer-motion";
 import styled from "styled-components";
 import Timer from "../components/Timer";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   GoalStateAtom,
   RoundStateAtom,
   TimerStateAtom,
   isRestedStateAtom,
+  isSkipedStateAtom,
   isStartStateAtom,
 } from "../atoms";
 import Buttons from "../components/Buttons";
@@ -54,8 +55,11 @@ export default function Home() {
   const [isStarted, setIsStarted] = useRecoilState(isStartStateAtom);
   const [isRested, setIsRested] = useRecoilState(isRestedStateAtom);
   const [round, setRound] = useRecoilState(RoundStateAtom);
+  const [isSkiped, setIsSkiped] = useRecoilState(isSkipedStateAtom);
   const [goal, setGoal] = useRecoilState(GoalStateAtom);
-  const [scope, animate] = useAnimate();
+  const controls = useAnimationControls();
+
+  console.log(isSkiped);
 
   // 타이머 시작
   /*
@@ -117,17 +121,22 @@ export default function Home() {
   }, [timer, isStarted, isRested]);
 
   useEffect(() => {
-    if (isStarted && !isRested) animate(scope.current, { y: 1350 }, { duration: 1500 });
+    if (isStarted && !isRested) controls.start({ y: "100%" }, { duration: 1500 });
     if (isStarted && isRested) {
-      if (round < 4) animate(scope.current, { y: 1350 }, { duration: 300 });
-      if (round === 4) animate(scope.current, { y: 1350 }, { duration: 1800 });
+      if (round < 4) controls.start({ y: "100%" }, { duration: 300 });
+      if (round === 4) controls.start({ y: "100%" }, { duration: 1800 });
     }
-    if (!isStarted) animate(scope.current, { y: 0 });
-  });
-
+    if (isSkiped) {
+      controls.set({ y: 0 });
+      setIsSkiped(false);
+    }
+    if (!isStarted) {
+      controls.stop();
+    }
+  }, [isStarted, isRested, isSkiped, round]);
   return (
     <Background $isRested={isRested}>
-      <BackgroundAnimation $isRested={isRested} ref={scope} />
+      <BackgroundAnimation $isRested={isRested} animate={controls} />
       <Container>
         <Title>Pomodoro</Title>
         <Timer />

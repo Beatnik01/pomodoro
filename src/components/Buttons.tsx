@@ -6,6 +6,7 @@ import {
   RoundStateAtom,
   TimerStateAtom,
   isRestedStateAtom,
+  isSkipedStateAtom,
   isStartStateAtom,
 } from "../atoms";
 
@@ -48,6 +49,7 @@ const SubButton = styled(motion.button)`
 
 export default function Buttons() {
   const setTimer = useSetRecoilState(TimerStateAtom);
+  const setIsSkiped = useSetRecoilState(isSkipedStateAtom);
   const [isStarted, setIsStarted] = useRecoilState(isStartStateAtom);
   const [isRested, setIsRested] = useRecoilState(isRestedStateAtom);
   const [round, setRound] = useRecoilState(RoundStateAtom);
@@ -71,6 +73,7 @@ export default function Buttons() {
        이것도 함수를 재사용하면 코드를 줄일 수 있을것 같은데 감이 안잡힘.
     */
   const skipButton = () => {
+    setIsSkiped(true);
     if (!isRested) {
       setIsStarted(false);
       setIsRested(true);

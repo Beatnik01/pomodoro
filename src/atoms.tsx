@@ -15,6 +15,11 @@ export const isRestedStateAtom = atom({
   default: false,
 });
 
+export const isSkipedStateAtom = atom({
+  key: "isSkipedState",
+  default: false,
+});
+
 export const RoundStateAtom = atom({
   key: "roundState",
   default: 0,
