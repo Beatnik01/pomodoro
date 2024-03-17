@@ -48,7 +48,7 @@ const Title = styled.h1`
   color: white;
   font-weight: 900;
   font-size: 5rem;
-  margin: 10rem 0;
+  margin: 5rem 0;
 `;
 
 export default function Home() {
