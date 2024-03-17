@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useAnimate } from "framer-motion";
 import styled from "styled-components";
 import Timer from "../components/Timer";
 import { useRecoilState } from "recoil";
@@ -14,16 +14,30 @@ import Buttons from "../components/Buttons";
 import Counter from "../components/Counter";
 
 const Container = styled(motion.div)<{ $isRested?: boolean }>`
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   margin: 0 auto;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+`;
+
+const Background = styled.div<{ $isRested?: boolean }>`
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+  background-color: ${(props) => (props.$isRested ? "#e74c3d" : "#2ecc71")};
+`;
+
+const BackgroundAnimation = styled(motion.div)<{ $isRested?: boolean }>`
+  position: absolute;
+  top: 0;
+  height: 100vh;
+  width: 100%;
   background-color: ${(props) => (props.$isRested ? "#2ecc71" : "#e74c3d")};
 `;
 
@@ -41,6 +55,7 @@ export default function Home() {
   const [isRested, setIsRested] = useRecoilState(isRestedStateAtom);
   const [round, setRound] = useRecoilState(RoundStateAtom);
   const [goal, setGoal] = useRecoilState(GoalStateAtom);
+  const [scope, animate] = useAnimate();
 
   // 타이머 시작
   /*
@@ -101,12 +116,24 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [timer, isStarted, isRested]);
 
+  useEffect(() => {
+    if (isStarted && !isRested) animate(scope.current, { y: 1350 }, { duration: 1500 });
+    if (isStarted && isRested) {
+      if (round < 4) animate(scope.current, { y: 1350 }, { duration: 300 });
+      if (round === 4) animate(scope.current, { y: 1350 }, { duration: 1800 });
+    }
+    if (!isStarted) animate(scope.current, { y: 0 });
+  });
+
   return (
-    <Container $isRested={isRested}>
-      <Title>Pomodoro</Title>
-      <Timer />
-      <Buttons />
-      <Counter />
-    </Container>
+    <Background $isRested={isRested}>
+      <BackgroundAnimation $isRested={isRested} ref={scope} />
+      <Container>
+        <Title>Pomodoro</Title>
+        <Timer />
+        <Buttons />
+        <Counter />
+      </Container>
+    </Background>
   );
 }
